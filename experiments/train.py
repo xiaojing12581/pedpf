@@ -53,21 +53,22 @@ dim_maxseqlen = dim_maxseqlens[dataset_id]
 dset = timeseries_dataset(dataset_name, dim_inputseqlen, dim_outputseqlen, dim_maxseqlen)
 training_set = dset.load('train')
 validation_set = dset.load('validate')
-# Initialize sample sets
+# Initialize sample sets初始化样本集
 id_samples_train = torch.randperm(len(training_set))[:num_samples_train]
 id_samples_validate = torch.randperm(len(validation_set))[:num_samples_validate]
-#%% Algorithm parameters
+#%% Algorithm parameters算法参数
 file_experiments = experiment_dir + f'/experiments_{dataset_name}.csv'
 table = read_table(file_experiments)
 d_emb = get_emb(dataset_name)
 while table[table['in_progress'] == -1].isnull()['score'].sum() > 0:
-    # Read experiment table, set hyperparameters
+    # Read experiment table, set hyperparameters读取实验表格，设置超参数
     idx = table[table['in_progress'] == -1].isnull()['score'].idxmax()
     algorithm = table.loc[idx, 'algorithm']
     learning_rate = table.loc[idx, 'learning_rate']
     batch_size = int(table.loc[idx, 'batch_size'])
     d_hidden = int(table.loc[idx, 'd_hidden'])
     # Following paper of TransformerConv, hidden dimension is defined by covariates, lags and embedding dims
+    # 根据TransformerConv的论文，隐维是由协变量、滞后和嵌入维数定义的
     if algorithm == 'transformer_conv':
         d_hidden = training_set.d_cov + training_set.d_lag + d_emb[:, 1].sum()
     kernel_size = int(table.loc[idx, 'kernel_size'])
