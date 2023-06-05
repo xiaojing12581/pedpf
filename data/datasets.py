@@ -31,23 +31,23 @@ class timeseries_dataset():
         if self.name == 'uci_electricity':
             output = uci_electricity(self.dim_inputseqlen, self.dim_outputseqlen, self.dim_maxseqlen, mode, self.name)
 
-        if self.name == 'uci_traffic':
-            output = uci_traffic(self.dim_inputseqlen, self.dim_outputseqlen, self.dim_maxseqlen, mode, self.name)
+#         if self.name == 'uci_traffic':
+#             output = uci_traffic(self.dim_inputseqlen, self.dim_outputseqlen, self.dim_maxseqlen, mode, self.name)
 
-        if self.name == 'kaggle_webtraffic':
-            output = kaggle_webtraffic(self.dim_inputseqlen, self.dim_outputseqlen, self.dim_maxseqlen, mode, self.name)
+#         if self.name == 'kaggle_webtraffic':
+#             output = kaggle_webtraffic(self.dim_inputseqlen, self.dim_outputseqlen, self.dim_maxseqlen, mode, self.name)
 
-        if self.name == 'kaggle_favorita':
-            output = kaggle_favorita(self.dim_inputseqlen, self.dim_outputseqlen, self.dim_maxseqlen, mode, self.name)
+#         if self.name == 'kaggle_favorita':
+#             output = kaggle_favorita(self.dim_inputseqlen, self.dim_outputseqlen, self.dim_maxseqlen, mode, self.name)
 
-        if self.name == 'kaggle_m5':
-            output = kaggle_m5(self.dim_inputseqlen, self.dim_outputseqlen, self.dim_maxseqlen, mode, self.name)
+#         if self.name == 'kaggle_m5':
+#             output = kaggle_m5(self.dim_inputseqlen, self.dim_outputseqlen, self.dim_maxseqlen, mode, self.name)
 
         return output
 
 #%% UCI - Electricity
 # Source: https://archive.ics.uci.edu/ml/datasets/ElectricityLoadDiagrams20112014
-class uci_electricity(torchdata.Dataset):
+class uci_electricity(torchdata.Dataset):#自定义数据集
     def __init__(self, dim_inputseqlen, dim_outputseqlen, dim_maxseqlen, mode, name):
         """ 
         Load UCI Electricity dataset in format [samples, seqlen, features]
@@ -73,14 +73,17 @@ class uci_electricity(torchdata.Dataset):
 
     def get_data(self):
         # Read data from source
+        # sep = ';'分隔符、parse_dates=[0], infer_datetime_format=True解析为时间、dtype='float32'类型、decimal=','识别为，的字符、index_col=[0]指定用作行标签的列
         df = pd.read_csv('data/uci_electricity/LD2011_2014.txt', sep = ';', parse_dates=[0], infer_datetime_format=True, dtype='float32', decimal=',', index_col=[0])
         # Subtract 15 minutes from index to make index the starting time (instead of ending time)
-        df.index = df.index + pd.Timedelta(minutes=-15)
-        # Aggregate to hourly level if desired
-        df = df.groupby([df.index.date, df.index.hour]).sum()
+        # 从行索引中减去15分钟，使索引成为开始时间(而不是结束时间)
+        df.index = df.index + pd.Timedelta(minutes=-15)#表示两个datetime值之间的差
+        # Aggregate to hourly level if desired如果需要，汇总到每小时级别
+        df = df.groupby([df.index.date, df.index.hour]).sum()#按date+hour分组
+        # 分组后的数据设置新级别df.index.set_levels：获取第一级应用为datetime类型，获取第二级 -> 新数据表？
         df.index = df.index.set_levels([pd.to_datetime(df.index.levels[0]), df.index.levels[1]])
-        # Create index for allowable entries (not only zeros)
-        self.num_series = len(df.columns)
+        # Create index for allowable entries (not only zeros)为允许的条目创建索引(不仅仅是零)
+        self.num_series = len(df.columns)#列长
         self.num_dates = len(df)
         arr_online = np.zeros((self.num_dates, self.num_series))
         index = np.empty((0, 2), dtype='int')
