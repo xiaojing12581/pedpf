@@ -84,17 +84,17 @@ def read_table(filename):
     
     return table
 
-# Embedding dimensions for each dataset
+# Embedding dimensions for each dataset为每个数据集嵌入维度
 def get_emb(dataset_name):
     if dataset_name == 'uci_electricity':
         d_emb = np.array([[370, 20]])
-    elif dataset_name == 'uci_traffic':
-        d_emb = np.array([[963, 20]])
-    elif dataset_name == 'kaggle_favorita':
-        d_emb = np.array([[3093, 8], [55, 3]])
-    elif dataset_name == 'kaggle_webtraffic':
-        d_emb = np.array([[10000, 20]])
-    elif dataset_name == 'kaggle_m5':
-        d_emb = np.array([[3049, 20], [7, 3], [3, 3], [10, 3], [3, 2], [5, 3], [3, 2]])        
+#     elif dataset_name == 'uci_traffic':
+#         d_emb = np.array([[963, 20]])
+#     elif dataset_name == 'kaggle_favorita':
+#         d_emb = np.array([[3093, 8], [55, 3]])
+#     elif dataset_name == 'kaggle_webtraffic':
+#         d_emb = np.array([[10000, 20]])
+#     elif dataset_name == 'kaggle_m5':
+#         d_emb = np.array([[3049, 20], [7, 3], [3, 3], [10, 3], [3, 2], [5, 3], [3, 2]])        
     
     return d_emb
