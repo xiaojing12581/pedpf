@@ -25,14 +25,14 @@ import importlib
 import time
 #%% Helper functions
 
-# Quantile function for StudenT(2) distribution
+# Quantile function for StudenT(2) distribution    StudenT(2)分布的分位数函数
 def StudentT2icdf(loc, scale, quantile):
     alpha = 4 * quantile * (1 - quantile)
     Q = 2 * (quantile - 0.5) * (2 / alpha).sqrt()
     
     return Q * scale + loc
 
-# Fix seed
+# Fix seed固定种子
 def fix_seed(seed):
     # Set seed
     random.seed(seed)
@@ -40,7 +40,7 @@ def fix_seed(seed):
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
 
-# Calculate and show metrics
+# Calculate and show metrics计算和显示指标
 def calc_metrics(yhat, y, quantiles):
     df = pd.DataFrame(columns={'RMSE','NRMSE','ND','MAPE','sMAPE','QuantileLoss','Quantile'})
     df.loc[:, 'Quantile'] = quantiles
@@ -57,18 +57,19 @@ def calc_metrics(yhat, y, quantiles):
     
     return df
 
-# Instantiate model based on string algorithm input
+# Instantiate model based on string algorithm input基于字符串算法输入实例化模型
 def instantiate_model(algorithm):
-    model_class = importlib.import_module('algorithms.'+algorithm)
-    model = getattr(model_class, algorithm)
+    #model_class对象调用了algorithm算法，返回对象的属性——对应的算法
+    model_class = importlib.import_module('algorithms.'+algorithm)#动态地获取另一个py文件中定义好的变量/方法
+    model = getattr(model_class, algorithm)#返回一个对象属性值
     
     return model
 
-# Count model parameters
+# Count model parameters计算模型参数
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
-# Read experiment csv
+# Read experiment csv阅读实验csv
 def read_table(filename):
     for x in range(0, 10):
         try:
