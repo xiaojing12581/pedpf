@@ -79,11 +79,13 @@ while table[table['in_progress'] == -1].isnull()['score'].sum() > 0:
     table.to_csv(file_experiments, sep=';', index=False)
     device = torch.device(cuda)
     params = eval(table.loc[idx, 'params_train'])
-    # Training loop
+    # Training loop训练循环
     filename = f"{experiment_dir}/{algorithm}/{algorithm}_seed={seed}_hidden={d_hidden}_lr={learning_rate}_bs={batch_size}"
+    #os.path.isdir判断某路径是否为目录、os.makedirs用于递归创建目录
     if not os.path.isdir(f"{experiment_dir}/{algorithm}"): os.makedirs(f"{experiment_dir}/{algorithm}")
-    fix_seed(seed)
-    n_batch_train = (len(id_samples_train) + batch_size - 1) // batch_size 
+    fix_seed(seed)#在使用模型进行训练的时候，通常为了保证模型的可复现性，会设置固定随机种子
+    #训练集批次：训练集样本数加滑动batch_size减1 —— 训练集被分为n批次进行训练（batch_size滑倒id_samples_train的最后一行）
+    n_batch_train = (len(id_samples_train) + batch_size - 1) // batch_size #地板除，只去除完之后的整数部分
     n_batch_validate = (len(id_samples_validate) + batch_size - 1) // batch_size
     if 'model' in locals(): del model
     model = instantiate_model(algorithm)(*params).to(device)   
