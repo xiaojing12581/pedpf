@@ -101,8 +101,8 @@ while table[table['in_progress'] == -1].isnull()['score'].sum() > 0:
         _, loss_validate[epoch], yhat_tot, y_tot, x_tot, df_validate = loop(model, validation_set, optimizer, batch_size, id_samples_validate, train=False, metrics=True, scaling=scaling)    
         if loss_validate[epoch] < loss_validate_best:
             torch.save({'epoch':epoch, 
-                       'model_state_dict':model.state_dict(),
-                       'optimizer_state_dict':optimizer.state_dict()}, filename)
+                       'model_state_dict':model.state_dict(),#存放模型训练过程中需要学习的权重和偏执系数
+                       'optimizer_state_dict':optimizer.state_dict()}, filename)#存放优化器中学习率、动量等系数
             df_validate.to_csv(filename + '_validate.csv')
             loss_validate_best = loss_validate[epoch]
             early_stopping_counter = 0
