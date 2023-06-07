@@ -65,24 +65,24 @@ def loop(model, data, optimizer, batch_size, id_samples, train, metrics, scaling
         else:
             scaleY = torch.tensor([1.0])#直接根据数据创建Tensor：tensor([1.0])
         # Create three inputs: (i) time series index, (ii) covariates, (iii) lags创建三个输入:(一)时间序列索引，(二)协变量，(三)滞后
-        X_idx = X[:, :, 0:dim_emb].long()#转为
+        X_idx = X[:, :, 0:dim_emb].long()#转为长整型
         X_cov = X[:, :, dim_emb:dim_emb + dim_cov]
         X_lag = X[:window, :, -dim_lag:]
-        # Send to device
+        # Send to device发送到设备
         X_lag, X_cov, X_idx, Y = X_lag.to(device), X_cov.to(device), X_idx.to(device), Y.to(device)
         scaleY = scaleY.to(device)
         if train:
-            # Set gradients to zero of optimizer
+            # Set gradients to zero of optimizer将优化器的梯度设置为零
             optimizer.zero_grad()
-            # Calculate loc and scale parameters of output distribution
+            # Calculate loc and scale parameters of output distribution计算输出分布的loc和scale参数
             mean, variance = model(X_lag, X_cov, X_idx, dim_outputseqlen)
             scale = (variance / factor).sqrt()
             loc = mean
             distr = StudentT(v, loc, scale)
             loss_batch = -distr.log_prob(Y).mean()
-            # Backward pass
+            # Backward pass逆推
             loss_batch.backward()
-            # Update parameters
+            # Update parameters更新参数
             optimizer.step()
         else:                        
             with torch.no_grad():
@@ -91,13 +91,13 @@ def loop(model, data, optimizer, batch_size, id_samples, train, metrics, scaling
                     X_lag[dim_inputseqlen + t, :, [-1]] = mean_prev
                     mean, variance = model(X_lag[:dim_inputseqlen + t + 1], X_cov, X_idx, t + 1)
                     mean_prev = mean[-1].clone().detach().clamp(data_min, data_max)
-                # Calculate loss
+                # Calculate loss计算损失
                 scale = (variance / factor).sqrt()
                 loc = mean                
                 distr = StudentT(v, loc, scale)
                 loss_batch = -distr.log_prob(Y).mean()
         
-        # Append loss, calculate quantiles
+        # Append loss, calculate quantiles附加损失，计算分位数
         loss += loss_batch.item()
         yhat = distr.sample([n_samples_dist])
         yhat *= scaleY
