@@ -80,17 +80,18 @@ def loop(model, data, optimizer, batch_size, id_samples, train, metrics, scaling
             loc = mean
             distr = StudentT(v, loc, scale)
             loss_batch = -distr.log_prob(Y).mean()
-            # Backward pass逆推
+            # Backward pass反向传播，自动计算所有梯度
             loss_batch.backward()
-            # Update parameters更新参数
+            # Update parameters更新梯度参数
             optimizer.step()
-        else:                        
+        else:
+        #验证集的时候，只是想看一下训练的效果，并不是想通过验证集来更新网络时，使用with torch.no_grad()。最终，torch.save就是保存的训练集的训练模型。
             with torch.no_grad():
                 mean_prev = X_lag[dim_inputseqlen, :, [-1]].clone().detach()
                 for t in range(dim_outputseqlen):
                     X_lag[dim_inputseqlen + t, :, [-1]] = mean_prev
                     mean, variance = model(X_lag[:dim_inputseqlen + t + 1], X_cov, X_idx, t + 1)
-                    mean_prev = mean[-1].clone().detach().clamp(data_min, data_max)
+                    mean_prev = mean[-1].clone().detach().clamp(data_min, data_max)#[-1]最后一维度
                 # Calculate loss计算损失
                 scale = (variance / factor).sqrt()
                 loc = mean                
@@ -98,15 +99,15 @@ def loop(model, data, optimizer, batch_size, id_samples, train, metrics, scaling
                 loss_batch = -distr.log_prob(Y).mean()
         
         # Append loss, calculate quantiles附加损失，计算分位数
-        loss += loss_batch.item()
+        loss += loss_batch.item()#item()取出张量具体位置的元素值
         yhat = distr.sample([n_samples_dist])
         yhat *= scaleY
-        yhat_q = torch.quantile(yhat, quantiles, dim=0)
-        yhat_tot[:, :, i*batch_size:j, :] = yhat_q.detach().cpu().numpy()
+        yhat_q = torch.quantile(yhat, quantiles, dim=0)#计算第0维的分位数
+        yhat_tot[:, :, i*batch_size:j, :] = yhat_q.detach().cpu().numpy()#detach()对输出不需要反向传播计算梯度cpu()传到cpu转为numpy()
         
     end = time.time()
     print(f'{"  Train" if train else "  Validation/Test"} loss: {loss/len(data_generator):.4f} Time: {end-start:.2f}s')      
-    yhat_tot = np.clip(yhat_tot, 0, 1e9)
+    yhat_tot = np.clip(yhat_tot, 0, 1e9)#将yhat_tot限制在0, 1e9之间
     if metrics:
         output = 0
         y, yhat = y_tot[:, :, output], yhat_tot[:, :, :, output]
