@@ -1,20 +1,31 @@
 """"""
 """
-   Copyright (c) 2021 Olivier Sprangers as part of Airlab Amsterdam
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-
-
+   N：神经网络的层数；k：卷积的核大小；T：网络中使用的序列长度；dh：网络的隐藏维度；dout：卷积层的输出通道的数量。
+   Electricity                                                            
+   time series：370
+   time series description：customers
+   target：R+
+   train samples：500k
+   validation samples：7k
+   test samples：7k
+   time step：t：hour
+   input sequence length：t0：169                 
+   output sequence length：T-t0：24          
+   covariate sequence length：Tc：500    
+   categorical covariates：1                     
+   embedding dimension：demb：20       
+   numerical covariates：dcov：7                    
+   lagged inputs：dlag：1                              
+   categorical covariate description：customer_id
+   numerical covariates description：Month_sin                                                         
+                                     Month_cos                                               
+                                     DayOfWeek_sin                                        
+                                     DayOfWeek_cos                                         
+                                     HourOfDay_sin                                     
+                                     HourOfDay_cos                                                   
+                                     Online
+   lagged input description：target_lagged
+   
 """
 #%% Import packages
 import torch
