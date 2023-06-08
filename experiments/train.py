@@ -41,7 +41,7 @@ num_cores = 2
 torch.set_num_threads(2)
 #%% Initialize parameters for datasets
 datasets = ['uci_electricity','uci_traffic','kaggle_favorita', 'kaggle_webtraffic', 'kaggle_m5']
-dim_inputseqlens = [168, 168, 90, 90, 90]
+dim_inputseqlens = [168, 168, 90, 90, 90]#分别对应上面5个数据的长度
 dim_outputseqlens = [24, 24, 28, 30, 28]
 dim_maxseqlens = [500, 500, 150, 150, 119]
 #%% Initiate experiment
@@ -55,13 +55,13 @@ early_stopping_patience = 5
 scaling = True
 epochs = 100
 #%% Load data
-dataset_name = datasets[dataset_id]
+dataset_name = datasets[dataset_id]#dataset_id = 1指的是uci_traffic数据
 experiment_dir = 'experiments/'+dataset_name
-dim_inputseqlen = dim_inputseqlens[dataset_id] # Input sequence length
-dim_outputseqlen = dim_outputseqlens[dataset_id]  # Output prediction length
-dim_maxseqlen = dim_maxseqlens[dataset_id]
+dim_inputseqlen = dim_inputseqlens[dataset_id] # Input sequence length输入序列长度168
+dim_outputseqlen = dim_outputseqlens[dataset_id]  # Output prediction length预测输出24
+dim_maxseqlen = dim_maxseqlens[dataset_id] #最大长度500
 # Import data
-dset = timeseries_dataset(dataset_name, dim_inputseqlen, dim_outputseqlen, dim_maxseqlen)
+dset = timeseries_dataset(dataset_name, dim_inputseqlen, dim_outputseqlen, dim_maxseqlen)#[uci_traffic,168,24,500]
 training_set = dset.load('train')
 validation_set = dset.load('validate')
 # Initialize sample sets初始化样本集
