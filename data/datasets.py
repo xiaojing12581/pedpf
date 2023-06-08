@@ -62,10 +62,10 @@ class uci_electricity(torchdata.Dataset):#自定义数据集
         self.name = name
         self.X, self.Y = self.get_data()
         
-    def __len__(self):
+    def __len__(self):#返回()大小——数值
         return len(self.index)
-        
-    def __getitem__(self, idx):        
+    #实现索引数据集中的某一个数据    
+    def __getitem__(self, idx):#self实例本身, idx全局变量        
         x = self.X[self.index[idx, 0], self.index[idx, 1]]
         y = self.Y[self.index[idx, 0], self.index[idx, 1]]
         
